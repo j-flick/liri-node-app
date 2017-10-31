@@ -13,7 +13,7 @@ var params = {screen_name: 'bcsalias17'};
 twitterClient.get('statuses/user_timeline', params, function(error, tweets, response) {
   if (!error) {
     // console.log(tweets[0].text);
-    // If there are at least 20 tweets, loop thru and display the last 20 tweets.
+    // If there are at least 20 tweets, loop thru and display the last 20 tweets and their timestamp.
     if(tweets.length >= 20) {
 		for(var i = 0; i < 20; i++) {
 			console.log(tweets[i].text);
@@ -22,7 +22,10 @@ twitterClient.get('statuses/user_timeline', params, function(error, tweets, resp
     // Otherwise, if there are not 20 or more tweets, just display as many as there are.
     else {
     	for(var i = 0; i < tweets.length; i++) {
-    		console.log(`${tweets[i].text}\n`);
+    		console.log("********************************************");
+    		console.log("");
+    		console.log(`${tweets[i].user.name} tweeted: ${tweets[i].text}`);
+    		console.log(`Created on ${tweets[i].created_at}\n`);
     	}
     }
   }
