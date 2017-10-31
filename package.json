@@ -1,0 +1,27 @@
+{
+  "name": "liri-node-app",
+  "version": "1.0.0",
+  "description": "language interpretation and recognition interface",
+  "main": "liri.js",
+  "scripts": {
+    "test": "none"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/j-flick/liri-node-app.git"
+  },
+  "keywords": [
+    "none"
+  ],
+  "author": "justin flick",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/j-flick/liri-node-app/issues"
+  },
+  "homepage": "https://github.com/j-flick/liri-node-app#readme",
+  "dependencies": {
+    "node-spotify-api": "^1.0.7",
+    "request": "^2.83.0",
+    "twitter": "^1.7.1"
+  }
+}
