@@ -10,8 +10,13 @@ var spotifyKeys = {
 	secret: '7c1f778d0c4841aebd190378329a9573'
 }
 
+var omdbKey = {
+	queryURL: 'http://www.omdbapi.com/?apikey=40e9cece&'
+}
+
 // Object to access keys in other files using 'require' keyword.
 module.exports = {
 	twitterKeys: twitterKeys,
-	spotifyKeys: spotifyKeys
+	spotifyKeys: spotifyKeys,
+	omdbKey: omdbKey
 }

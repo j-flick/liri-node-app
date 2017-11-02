@@ -1,9 +1,15 @@
+// Variable to store all node arguments in an array.
+var nodeArgs = process.argv;
 // Variable containing user input argument for which function they would like to run.
 var command = process.argv[2];
-var spotifyCommand = process.argv[3];
+// Variable for an optional user input argument.
+var customCommand = process.argv[3];
 
-// Access exports from keys.js file.
+// Access exports from required files.
 var keys = require("./keys.js");
+var Twitter = require('twitter');
+var Spotify = require('node-spotify-api');
+var request = require('request');
 
 // Add color to the bash console!
 var color = require('bash-color');
@@ -14,9 +20,9 @@ switch(command) {
 		break;
 	case "spotify-this-song":
 		// If an argument is entered by the user, search for the song they specified.
-		if (spotifyCommand) {
+		if (customCommand) {
 			// Create a new CallSpotify object, which takes the user defined input.
-			var userQuery = new CallSpotify(spotifyCommand);
+			var userQuery = new CallSpotify(customCommand);
 			// Run the method that calls the Spotify API.
 			userQuery.isAlive();
 		}
@@ -28,11 +34,26 @@ switch(command) {
 			defaultQuery.isAlive();
 		}
 		break;
+	case "movie-this":
+		// If an argument is entered by the user, search for the movie they specified.
+		if (customCommand) {
+			// Create a new CallOMDB object, which takes the user defined input.
+			var userQuery = new CallOMDB(customCommand);
+			// Run the method that calls the OMDB API.
+			userQuery.isAlive();
+		}
+		// Otherwise, default to the movie "Mr. Nobody."
+		else {
+			// Create a new CallOMDB object, which takes a default value.
+			var defaultQuery = new CallOMDB("Mr.+Nobody");
+			// Run the method that calls the OMDB API.
+			defaultQuery.isAlive();
+		}
+		break;
 }
 
 // Function to run when 'my-tweets' is the specified argument.
 function callTwitter() {
-	var Twitter = require('twitter');
 
 	// Twitter keys stored in a variable.
 	var twitterClient = new Twitter(keys.twitterKeys);
@@ -78,7 +99,6 @@ function CallSpotify(query) {
 
 	// Create method to call the Spotify API.
 	this.isAlive = function() {
-		var Spotify = require('node-spotify-api');
 		 
 		// Spotify keys stored in a variable.
 		var spotify = new Spotify(keys.spotifyKeys);
@@ -104,6 +124,33 @@ function CallSpotify(query) {
 			console.log(color.cyan("Album: ", true) + data.tracks.items[0].album.name + "\n");
 			console.log(color.purple("********************************************"));
 		});
+	}
+}
+
+// OMDB constructor to allow for a default query and user defined query.
+function CallOMDB(query) {
+	// Create a property for the query passed into the function.
+	this.query = query;
+
+	// Construct a custom, user defined, URL.
+	var customURL = keys.omdbKey.queryURL + "t=" + this.query;
+
+	// Create a method that calls the OMDB API.
+	this.isAlive = function() {
+
+		request(customURL, function (error, response, body) {
+			if (!error && response.statusCode === 200) {
+		  		console.log(color.cyan("Title: ", true), JSON.parse(body).Title);
+		  		console.log(color.cyan("Released: ", true), JSON.parse(body).Released);
+		  		console.log(color.cyan("IMDb Rating: ", true), color.yellow(JSON.parse(body).imdbRating, true));
+		  		console.log(color.cyan("Rotten Tomatoes Rating: ", true), color.yellow(JSON.parse(body).Ratings[1].Value, true));
+		  		console.log(color.cyan("Country: ", true), JSON.parse(body).Country);
+		  		console.log(color.cyan("Language: ", true), JSON.parse(body).Language);
+		  		console.log(color.cyan("Plot: ", true), JSON.parse(body).Plot);
+		  		console.log(color.cyan("Actors: ", true), JSON.parse(body).Actors);
+			}
+		});
+
 	}
 }
 
