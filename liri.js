@@ -10,6 +10,7 @@ var keys = require("./keys.js");
 var Twitter = require('twitter');
 var Spotify = require('node-spotify-api');
 var request = require('request');
+var fs = require('fs');
 
 // Add color to the bash console!
 var color = require('bash-color');
@@ -49,6 +50,9 @@ switch(command) {
 			// Run the method that calls the OMDB API.
 			defaultQuery.isAlive();
 		}
+		break;
+	case "do-what-it-says":
+		doWhatItSays();
 		break;
 }
 
@@ -138,12 +142,18 @@ function CallOMDB(query) {
 	// Create a method that calls the OMDB API.
 	this.isAlive = function() {
 
+		// Request and display movie information.
 		request(customURL, function (error, response, body) {
 			if (!error && response.statusCode === 200) {
 		  		console.log(color.cyan("Title: ", true), JSON.parse(body).Title);
 		  		console.log(color.cyan("Released: ", true), JSON.parse(body).Released);
 		  		console.log(color.cyan("IMDb Rating: ", true), color.yellow(JSON.parse(body).imdbRating, true));
-		  		console.log(color.cyan("Rotten Tomatoes Rating: ", true), color.yellow(JSON.parse(body).Ratings[1].Value, true));
+		  		if (JSON.parse(body).Ratings[1]) {
+		  			console.log(color.cyan("Rotten Tomatoes Rating: ", true), color.yellow(JSON.parse(body).Ratings[1].Value, true));
+		  		}
+		  		else {
+		  			console.log(color.cyan("Rotten Tomatoes Rating: ", true), color.yellow("Rotten Tomatoes rating unavailable", true));
+		  		}
 		  		console.log(color.cyan("Country: ", true), JSON.parse(body).Country);
 		  		console.log(color.cyan("Language: ", true), JSON.parse(body).Language);
 		  		console.log(color.cyan("Plot: ", true), JSON.parse(body).Plot);
@@ -154,6 +164,34 @@ function CallOMDB(query) {
 	}
 }
 
+function doWhatItSays() {
+	fs.readFile("random.txt", "utf8", function(error, data) {
+
+	  // If the code experiences any errors it will log the error to the console.
+	  if (error) {
+	    return console.log(error);
+	  }
+	  // Split the .txt file into an array with the comma as a delimiter.
+	  var dataArray = data.split(",");
+
+	  // Switch statement dependent on which command is declared in the .txt file.
+	  switch(dataArray[0]) {
+	  	case "my-tweets":
+	  		callTwitter();
+	  		break;
+	  	case "spotify-this-song":
+	  		var query = new CallSpotify(dataArray[1]);
+	  		query.isAlive();
+	  		break;
+	  	case "movie-this":
+	  		var query = new CallOMDB(dataArray[1]);
+	  		query.isAlive();
+	  		break;
+	  }
+
+	});
+}
+
 // Self-invoking function runs when node liri.js is executed.
 (function startProgram() {
 	// If there are no additional arguments beyond node liri.js, display some available commands to the user.
@@ -162,5 +200,8 @@ function CallOMDB(query) {
 		console.log(color.yellow("  1: ", true) + "my-tweets");
 		console.log(color.yellow("  2: ", true) + "spotify-this-song");
 		console.log(color.purple("     - Optional: ") + "add 'artist', 'album', or 'track' in quotes");
+		console.log(color.yellow("  3: ", true) + "movie-this");
+		console.log(color.purple("     - Optional: ") + "add 'movie name' in quotes");
+		console.log(color.yellow("  4: ", true) + "do-what-it-says");
 	}
 })();
